@@ -1,0 +1,146 @@
+from random import randint
+import sys
+Turn = True
+Free_Positions = [] # when a player chooses a position, that number is appended in this list
+X = list("X"*3)
+O = list("O"*3)
+Game_Over = False
+Play_Again = True
+
+def create_board():
+    #create the board
+    board = list(" "*10)
+    board[0] = "#"
+    return board
+
+def Welcome():
+
+    print("Welcome to Tic Tac Toe game\n")
+    Name1 = input("Player1, enter your name: ")
+    Name2 = input("Player2, enter your name: ")
+    return Name1, Name2
+
+def Who_Starts(Name1,Name2):
+	# Randomly decide who will start first 
+	
+    flip_coin = randint(0, 1)
+    Player1 = 0
+    Player2 = 1
+    if flip_coin == 0:
+        print(f"Hey {Name1}, you will start first\n")
+        return Player1
+    else:
+        print(f"Hey {Name2}, you will start first\n")
+        return Player2
+
+def Choose_X_or_O(First_Player_Name,Second_Player_Name):
+
+    FirstPlayer = input(f"Hey {First_Player_Name}, choose 'X' or 'O': ").upper()
+
+    if FirstPlayer == "X":
+        SecondPlayer = "O"
+    else:
+        SecondPlayer = "X"
+    return FirstPlayer, First_Player_Name, SecondPlayer, Second_Player_Name
+
+def Pick_Position(Name, Symbol, Turn_Change, board):
+    # pick a position from 1 to 9 and save that number to list Free_Positions
+    # if a player has already picked that number then you have to pick another number
+    while True:
+        position = int(input(f"Hey {Name}, pick a position from 1 to 9: "))
+        if position in range(1, 10) and position not in Free_Positions:
+            Free_Positions.append(position)
+            board[position] = Symbol
+            print_board(board)
+            break
+        else:
+            continue
+    # change the turn
+    return not Turn_Change
+
+def print_board(board):
+    print("\n")
+    print(" " + board[7] + " | " + board[8] + " | " + board[9])
+    print("-----------")
+    print(" " + board[4] + " | " + board[5] + " | " + board[6])
+    print("-----------")
+    print(" " + board[1] + " | " + board[2] + " | " + board[3])
+
+def Check_Winner(board):
+    # Compare all the combinations with a list of (3 * X) and (3 * O)
+
+    Winner = ""
+    Game_Over = False
+    if board[1:4] == X or board[1:8:3] == X or board[1:10:4] == X or board[7:10] == X or board[4:7] == X or board[3:8:3] == X or board[2:9:3] == X or board[3:10:3] == X:
+        Winner = "X"
+        Game_Over = True
+    elif board[1:4] == O or board[1:8:3] == O or board[1:10 :4] == O or board[7:10] == O or board[4:7] == O or board[3:8:3] == O or board[2:9:3] == O or board[3:10:3] == O:
+        Winner = "O"
+        Game_Over = True
+    elif " " not in board:
+        Winner = "T"
+        Game_Over = True
+    #if we have a winner we return that the game is over and the marker of the winner
+    return Winner, Game_Over
+
+def reset(board):
+
+    Start_Again = input("If you want to play again type : 'Y' else type 'N'").upper()
+
+    if Start_Again == "Y":
+        Turn = True
+        Free_Positions = []
+        Game_Over = False
+        board = create_board()
+        return True, board, Turn, Free_Positions, Game_Over
+    elif Start_Again == "N":
+        print("BYE BYE\n")
+        sys.exit()
+
+#create the board and enter the names
+board = create_board()
+Name1, Name2 = Welcome()
+
+while Play_Again:
+
+    WhoWillStart = Who_Starts(Name1, Name2)
+
+    if WhoWillStart == 0:
+        # If 0, name1 will start first and choose X or O
+        Player1_Symbol, Player1_Name, Player2_Symbol, Player2_Name = Choose_X_or_O(Name1, Name2)
+    else:
+        # if 1, name2 will start first and choose X or O
+        Player1_Symbol, Player1_Name, Player2_Symbol, Player2_Name = Choose_X_or_O(Name2, Name1)
+
+    while not Game_Over:
+        # Initially Turn = True , when the first player picks a position, the opposite state of Turn will be returned
+        if Turn:
+			
+            Turn = Pick_Position(Player1_Name, Player1_Symbol, Turn, board)
+            Result, Game_Over = Check_Winner(board)
+        else:
+            Turn = Pick_Position(Player2_Name, Player2_Symbol, Turn, board)
+            Result, Game_Over = Check_Winner(board)
+
+        #if we don't have a winner or tie, the game continues
+        if not Game_Over:
+            pass
+        else:
+            # check who is the winner
+            if Result == Player1_Symbol:
+                print(f"{Player1_Name} won\n")
+            elif Result == Player2_Symbol:
+                print(f"{Player2_Name} won\n")
+            else:
+                print("Tie\n")
+
+            Play_Again, board, Turn, Free_Positions, Game_Over = reset(board)
+            break
+
+
+
+
+
+
+
+
